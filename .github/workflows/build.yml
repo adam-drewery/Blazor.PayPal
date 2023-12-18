@@ -61,7 +61,7 @@ jobs:
           latestVersion=$(echo "$sortedList" | tail -n1)
           echo "Latest version found: $latestVersion"
 
-          latestPatch=$(echo "$latestVersion" | awk -F'.' '{print $3}' | awk '{print $1}')
+          latestPatch=$(echo "$latestVersion" | grep -oP "\b\d+\.\d+\.\K\d+" | head -n1)
           echo "Latest patch version extracted: $latestPatch"
 
           if [ -z "$latestPatch" ]; then
