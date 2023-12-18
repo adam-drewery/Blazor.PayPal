@@ -48,7 +48,8 @@ jobs:
           echo "Major and minor version: $majorMinor"
 
           # Fetch latest patch version from NuGet
-          latestPatch=$(nuget list $packageName -PreRelease | grep $majorMinor | sort -V | tail -n1 | cut -d'.' -f3 | cut -d' ' -f1)
+          latestPatch=$(nuget list $packageName -PreRelease | grep "$majorMinor\." | sort -V | tail -n1 | awk -F'.' '{print $3}' | awk '{print $1}')
+
           echo "Latest patch version from NuGet: $latestPatch"
           if [ -z "$latestPatch" ]; then
             latestPatch=0
