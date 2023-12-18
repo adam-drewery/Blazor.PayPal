@@ -21,6 +21,29 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
 
+    - name: Update Patch Versions
+      run: |
+        # Find all .csproj files
+        for csprojFile in $(find . -name '*.csproj'); do
+          # Check for PackageId, otherwise use project name
+          packageName=$(grep -oPm1 "(?<=<PackageId>)[^<]+" $csprojFile || basename $csprojFile .csproj)
+
+          # Extract major and minor version
+          version=$(grep -oPm1 "(?<=<Version>)[^<]+" $csprojFile)
+          majorMinor=$(echo $version | cut -d'.' -f1,2)
+
+          # Fetch latest patch version from NuGet
+          latestPatch=$(nuget list $packageName -PreRelease | grep $majorMinor | sort -V | tail -n1 | cut -d'.' -f3 | cut -d' ' -f1)
+          if [ -z "$latestPatch" ]; then
+            latestPatch=0
+          fi
+
+          # Update .csproj with new patch version
+          newPatch=$((latestPatch + 1))
+          newVersion="$majorMinor.$newPatch"
+          sed -i "s/<Version>$version<\/Version>/<Version>$newVersion<\/Version>/" $csprojFile
+        done
+
     - name: Test
       run: dotnet test --no-restore --verbosity normal
 
