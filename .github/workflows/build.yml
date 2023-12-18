@@ -48,7 +48,27 @@ jobs:
           echo "Major and minor version: $majorMinor"
 
           # Fetch latest patch version from NuGet
-          latestPatch=$(nuget list $packageName -PreRelease | grep "$majorMinor\." | sort -V | tail -n1 | awk -F'.' '{print $3}' | awk '{print $1}')
+          echo "Fetching latest patch version for $packageName from NuGet..."
+          nugetListOutput=$(nuget list $packageName -PreRelease)
+          echo "NuGet list output for $packageName: $nugetListOutput"
+
+          filteredList=$(echo "$nugetListOutput" | grep "$majorMinor\.")
+          echo "Filtered list for version $majorMinor: $filteredList"
+
+          sortedList=$(echo "$filteredList" | sort -V)
+          echo "Sorted list of versions: $sortedList"
+
+          latestVersion=$(echo "$sortedList" | tail -n1)
+          echo "Latest version found: $latestVersion"
+
+          latestPatch=$(echo "$latestVersion" | awk -F'.' '{print $3}' | awk '{print $1}')
+          echo "Latest patch version extracted: $latestPatch"
+
+          if [ -z "$latestPatch" ]; then
+            latestPatch=0
+            echo "No patch versions found on NuGet for $majorMinor, defaulting to 0"
+          fi
+
 
           echo "Latest patch version from NuGet: $latestPatch"
           if [ -z "$latestPatch" ]; then
