@@ -23,26 +23,45 @@ jobs:
 
     - name: Update Patch Versions
       run: |
+        echo "Starting the patch version update process..."
+
         # Find all .csproj files
-        for csprojFile in $(find . -name '*.csproj'); do
+        csprojFiles=$(find . -name '*.csproj')
+        echo "Found .csproj files: $csprojFiles"
+
+        for csprojFile in $csprojFiles; do
+          echo "Processing file: $csprojFile"
+
           # Check for PackageId, otherwise use project name
-          packageName=$(grep -oPm1 "(?<=<PackageId>)[^<]+" $csprojFile || basename $csprojFile .csproj)
+          packageName=$(grep -oPm1 "(?<=<PackageId>)[^<]+" $csprojFile || echo $(basename $csprojFile .csproj))
+          echo "Package name determined: $packageName"
 
           # Extract major and minor version
           version=$(grep -oPm1 "(?<=<Version>)[^<]+" $csprojFile)
+          if [ -z "$version" ]; then
+            echo "No version found in $csprojFile, skipping..."
+            continue
+          fi
+          echo "Current version: $version"
           majorMinor=$(echo $version | cut -d'.' -f1,2)
+          echo "Major and minor version: $majorMinor"
 
           # Fetch latest patch version from NuGet
           latestPatch=$(nuget list $packageName -PreRelease | grep $majorMinor | sort -V | tail -n1 | cut -d'.' -f3 | cut -d' ' -f1)
+          echo "Latest patch version from NuGet: $latestPatch"
           if [ -z "$latestPatch" ]; then
             latestPatch=0
+            echo "No patch versions found on NuGet, defaulting to 0"
           fi
 
           # Update .csproj with new patch version
           newPatch=$((latestPatch + 1))
           newVersion="$majorMinor.$newPatch"
+          echo "Updating to new version: $newVersion"
           sed -i "s/<Version>$version<\/Version>/<Version>$newVersion<\/Version>/" $csprojFile
         done
+
+        echo "Patch version update process completed."
 
     - name: Test
       run: dotnet test --no-restore --verbosity normal
