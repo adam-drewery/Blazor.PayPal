@@ -36,13 +36,14 @@ jobs:
           packageName=$(grep -oPm1 "(?<=<PackageId>)[^<]+" $csprojFile || echo $(basename $csprojFile .csproj))
           echo "Package name determined: $packageName"
 
-          # Extract major and minor version
+          # Extract or initialize the version
           version=$(grep -oPm1 "(?<=<Version>)[^<]+" $csprojFile)
           if [ -z "$version" ]; then
-            echo "No version found in $csprojFile, skipping..."
-            continue
+            echo "No version found in $csprojFile, initializing to default 1.0.0"
+            version="1.0.0"
+            sed -i "/<\/PropertyGroup>/i \ \ <Version>$version<\/Version>" $csprojFile
           fi
-          echo "Current version: $version"
+          echo "Version: $version"
           majorMinor=$(echo $version | cut -d'.' -f1,2)
           echo "Major and minor version: $majorMinor"
 
