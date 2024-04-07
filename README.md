@@ -3,5 +3,5 @@
 
 # Blazor.PayPal
 .NET wrapper for the PayPal JavaScript API
-~~~~
+
 ## Currently only includes basic PayPal models and no functionality. This is a work in progress.
