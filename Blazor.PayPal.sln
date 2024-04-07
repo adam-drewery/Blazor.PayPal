@@ -2,6 +2,13 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blazor.PayPal", "Blazor.PayPal\Blazor.PayPal.csproj", "{4A2DC02F-0C27-4817-9360-1CE1A7907F18}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{71212245-2455-459E-BEE6-A41035720280}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		.github\workflows\build.yml = .github\workflows\build.yml
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
